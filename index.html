@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Random Ticked</title>
+</head>
+<body>
+    <div id="A-1">
+        <canvas id="mycanvas" width="390" height="555" style="border:1px solid #f3c5ed;"></canvas>
+        <p>
+            <button type="button" onclick="checked.one()">随机一注</button>
+            <button type="button" onclick="checked.five()">随机五注</button>
+            <button type="button" onclick="checked.ten()">随机十注</button>
+            <label><input type="radio" name="ticket" id="ssq" value="1"> 双色球</label>
+            <label><input type="radio" name="ticket" id="dlt" value="2"> 大乐透</label>
+        </p>
+    </div>
+<script>
+'use strict'
+
+class RandomTicket{
+    constructor(){
+        this.ballX = 30;
+        this.ballY = 30;
+        this.ballR = 50;
+    }
+
+    show(arr) {                
+        var count = 0;
+        var x =this.ballX;
+        var y = this.ballY;
+        var r = this.ballR / 2;
+
+        for (var i of arr) {                   
+            var t = 1;
+            for (var j of i) {
+                var cav = document.getElementById('mycanvas');
+                var ctx = cav.getContext("2d");
+                var ctx2 = cav.getContext("2d");
+                var path = new Path2D();
+                if (this.radioStatus()) {
+                    if (t % 7 === 0) {
+                    ctx.fillStyle = '#0000ff';
+                    } else {
+                        ctx.fillStyle = '#ff0000';
+                    }
+                } else {
+                    if (t % 6 === 0 || t % 7 === 0) {
+                    ctx.fillStyle = '#0000ff';
+                    } else {
+                        ctx.fillStyle = '#ff0000';
+                    }
+                }
+                
+                path.moveTo(x,y);
+                path.arc(x,y,r,0,2*Math.PI);
+                ctx.fill(path);
+                ctx.strokeStyle = ctx.fillStyle;
+                ctx.stroke(path);                        
+                ctx2.fillStyle = '#ffffff';
+                ctx2.font='30px Arial';
+
+                if (j < 10){
+                    ctx2.fillText(j,x - 8,y + 10);
+                } else {
+                    ctx2.fillText(j,x - 15,y + 10);
+                };
+                
+                x += this.ballR + 5;
+                t++;
+                count++;
+
+                if (count % 7 === 0) {
+                    x = this.ballX;
+                    y += this.ballR + 5;
+                };
+            }
+        }
+    }
+
+    radioStatus() {
+        var radio1 = document.getElementById('ssq');
+        var radio2 = document.getElementById('dlt');
+        if (radio.checked === true) {
+            return true;
+        }
+        else return false;
+    }
+
+    randomArrSort(arr){
+        var res = [];
+        for (var i=0,len=arr.length;i<len;i++) {
+            var randomIndex = Math.floor(Math.random()*arr.length);
+            res[i] = arr[randomIndex];
+            arr.splice(randomIndex,1);
+        }
+        return res;
+    }
+
+    randomNum(minNum,maxNum) {
+        switch(arguments.length) {
+            case 1:
+                return parseInt(Math.random()*minNum+1,10);
+                break;
+            case 2:
+                return parseInt(Math.random()*(maxNum-minNum+1)+minNum,10);
+                break;
+            default:
+                return 0;
+                break;
+        }
+    }
+
+    
+    getTicketSSQ(num) {
+        var arrAll = [];        
+        for (var j=0;j<num;j++) {
+            var ballArr = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33];
+            var arrTmp = [];
+            for (var i=0;i<6;i++) {
+                ballArr = this.randomArrSort(ballArr);
+                arrTmp[i] = ballArr.pop();
+            }
+            arrTmp = arrTmp.sort((x,y) => {
+                if (x < y) {
+                    return -1;
+                }
+                if (x > y) {
+                    return 1;
+                }
+                else return 0;
+            });
+            arrTmp.push(this.randomNum(1,16));
+            arrAll.push(arrTmp);
+        }
+        return arrAll;
+    }
+
+    getTicketDLT(num){
+        var arrAll = [];
+        for (var i=0;i<num;i++) {
+            var ballsA =[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35];
+            var ballsB = [1,2,3,4,5,6,7,8,9,10,11,12];
+            var arrA = [];
+            var arrB = [];
+            for (var j=0;j<5;j++) {
+                ballsA = this.randomArrSort(ballsA);
+                arrA[j] = ballsA.pop();
+            }
+            arrA = arrA.sort((x,y) => {
+                if (x < y) {
+                    return -1;
+                }
+                if (x > y) {
+                    return 1;
+                }
+                else return 0;
+            });
+            for (var k=0;k<2;k++) {
+                ballsB = this.randomArrSort(ballsB);
+                arrB[k] = ballsB.pop();
+            }
+            arrB = arrB.sort((x,y) => {
+                if (x < y) {
+                    return -1;
+                }
+                if (x > y) {
+                    return 1;
+                }
+                else 0;
+            });
+            var tmp = arrA.concat(arrB);
+            arrAll.push(tmp);
+        }
+        return arrAll;
+    }
+
+    getTicketArr(num) {
+        if (this.radioStatus()) {
+            var arr = this.getTicketSSQ(num);
+        } else {
+            var arr = this.getTicketDLT(num);
+        }
+        return arr;
+    }
+
+    one() {
+        var a = this.getTicketArr(1);
+        this.show(a);     
+    }
+
+    five() {
+        var b = this.getTicketArr(5);
+        this.show(b);   
+    }
+
+    ten() {
+        var c = this.getTicketArr(10);
+        this.show(c);   
+    }
+}
+var radio = document.getElementById('ssq');
+radio.checked = true;
+var checked = new RandomTicket();
+</script>
+</body>   
+</html>
